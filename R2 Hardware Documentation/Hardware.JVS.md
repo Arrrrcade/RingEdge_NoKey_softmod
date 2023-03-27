@@ -1,0 +1,142 @@
+   JVS | RingEdge 2    window.dataLayer = window.dataLayer || \[\]; function gtag() { dataLayer.push(arguments); } gtag('js', new Date()); gtag('config', 'G-LG6C6HT317');
+
+[Contents](/eamuse/sega/)
+
+[Intro](/eamuse/sega/intro/)
+
+[Software](/eamuse/sega/software/)
+
+[Hardware](/eamuse/sega/hardware/)
+
+[Manual](/eamuse/sega/manual/)
+
+JAMMA Video Standard
+====================
+
+[A copy of the JVS standard can be found here](/eamuse/static/JVST_VER3.pdf). The astute reader may observe it is in Japanese. A rather excelent translation can be [found here](http://daifukkat.su/files/jvs_wip.pdf).
+
+JVS is a communication standard designed for I/O devices in arcade macines. It typically operates over RS485 serial, however the framing format can and sometimes is used outside of this context.
+
+This page documents the canonical JVS structure. Some devices, notably the Aime NFC daughter boardASSY IDSEGA 838-14971DescriptionNFC RW BD TN32MSEC003S, use a slight variant on the format. [The differences between the two formats are document here](./rs232c.html).
+
+Escaping
+--------
+
+Every packet sent begins with the SYNC byte, `0xe0`. Read buffers should be continually flushed until this byte is observed.
+
+As such, `0xe0` is reserved, and is escaped. A byte is escaped using MARK, `0xd0`, followed by the byte's value subtract one. While any byte can be escaped, the only two that require escaping are SYNC and MARK, escaped as `D0 DF` and `D0 CF` respectively. All operations on packets, such as checksums and length calculation, are performed on the **unescaped** packet.
+
+Packet framing
+--------------
+
+Request packet (master->slave)
+
+E0h
+
+Dest
+
+n
+
+D0
+
+D1
+
+D2
+
+...
+
+Dn-2
+
+SUM
+
+Response packet (slave->master)
+
+E0h
+
+Dest
+
+n
+
+Status
+
+D0
+
+D1
+
+D2
+
+...
+
+Dn-3
+
+SUM
+
+SUM is calculated by summing all bytes in the packet, excluding SYNC and SUM itself. `n` indicates the number of bytes succeeding itself. Due to the existance of the checksum, `n=0` is nonsensical.
+
+Commands and responses
+----------------------
+
+A request packet may contain multiple commands within it. `D0` always contains the first command. It is followed by `m` bytes of data, typically a constant number per command but not always (see the command reference), at which point either we have consumed `n-1` bytes and the next byte is SUM, or the next byte is another command and we repeat.
+
+CMD0
+
+D0,0
+
+D0,1
+
+...
+
+CMD1
+
+D1,0
+
+D1,1
+
+...
+
+CMD2
+
+D2,0
+
+D2,1
+
+...
+
+SUM
+
+Response packets are structured similarly, however the CMD byte is not present, instead relying on the response to be ordered exactly the same as the request. The data of each command is preceeded by a report code, indicating that individual command's status. The below diagram also includes the entire-packet status byte too for clarity.
+
+Status
+
+Report0
+
+D0,0
+
+D0,1
+
+...
+
+Report1
+
+D1,0
+
+D1,1
+
+...
+
+Report2
+
+D2,0
+
+D2,1
+
+...
+
+SUM
+
+Individual commands
+-------------------
+
+I may document these at some point in the future, but honestly the [translated reference](http://daifukkat.su/files/jvs_wip.pdf) linked at the top of this page does a great job.
+
+[sega](/eamuse/sega/)/[hardware](/eamuse/sega/hardware/)/jvs.html[Next page](/eamuse/sega/hardware/touch.html)
