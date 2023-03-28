@@ -29,7 +29,9 @@ If the server is unable to process a request for any reason, it may respond with
 
 Outside of special packets such as `>` and `$`, all communication in both directions strictly follows the following structure:
 
-![](/eamuse/images/pcp-railroad.png)
+<p align="left">
+<img src="./pcp_railroad.png)">
+</p>
 
 _`Text`_ is defined as a series of one or more bytes matching `[a-zA-Z0-9._:@%/\{}-]`.
 
